@@ -1,0 +1,26 @@
+1.远程库有未合并的修改（未被上游合并），push后有多个未合并的commit
+解决办法：	(方法1) 新建一个分支，使用git reset --hard HEAD^ 回退到未提交的版本
+		(方法2) 从上游（upstream）直接拉取到本地新建的分支 git checkout -b xxx upstream/master
+
+2.push之后发现有错误还要修改
+解决办法：	(1) 本地修改文件
+		(2) commit时使用 git commit --ammend
+		(3) git push -f， 远程仓库和上游仓库会同步更改
+
+3.出现git pull之后，弹出vim，让填写一条commit信息。
+原因
+git pull是先git fetch，然后再git merge，git merge的默认行为会自动commit合并结果，并且merge大部分时候不是一个 fast-forward merge，所以会弹出填写commit信息的提示。
+解决方法
+(1) 不填写任何commit信息，直接保存提交退出vim (推荐) 
+(2) 使用 git pull --rebase 或  git rebase (推荐)
+(3) 使用 --no-edit 选项，会自动生成一条commit message, 无需手动填写 (不推荐)
+
+4.git查看和删除远程分支
+查看远程分支 git branch -r
+删除远程分支 git push origin --delete [branch_name]
+
+5.git添加远程仓库：
+git remote add origin <你的项目地址>
+
+6.删除指定的远程仓库：
+git remote rm origin
