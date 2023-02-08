@@ -13,3 +13,6 @@
 6. kill [pid]     杀死进程号pid的进程
 
 7. tail -f ~/.cache/deepin/dde-control-center.log        查看控制中心日志， -f表示实时更新
+
+8. echo &XDG_SESSION_TYPE       查看自己电脑架构协议
+   gsettings get/set/reset com.deepin.dde.watchdog dde-dock true       设置/获取/重置电脑属性
