@@ -1,0 +1,15 @@
+1. sudo apt build-dep [程序名]     查找程序所依赖的包并安装
+
+2. sudo apt update     获取现有包的最新版本号，并将最新版本信息保存到本地
+   sudo apt upgrade     更新现存的所有包
+
+3. dpkg -S     查询某文件属于哪个包
+
+4. ls -a     显示隐藏文件
+
+5. 关机： shutdown -h now
+   重启： shutdown -r now
+
+6. kill [pid]     杀死进程号pid的进程
+
+7. tail -f ~/.cache/deepin/dde-control-center.log        查看控制中心日志， -f表示实时更新
