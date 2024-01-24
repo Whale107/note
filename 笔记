@@ -7,4 +7,8 @@
     sudo vim /usr/bin/kwin_wayland_helper
     向 export QT_LOGGING_RULES="kwin*=true; kwin_libinput=false;" 追加 *.debug=false;
 
-2.
+2. 更新问题
+     (1) sudo tail -f /var/log/apt/history.log
+     (2) sudo tail -f /var/log/dpkg/history.log
+     (3) ps aux | grep lastore-
+     (4) sudo journalctl -f /usr/libexec/lastore-daemon/lastore-daemon
