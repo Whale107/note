@@ -12,3 +12,9 @@
      (2) sudo tail -f /var/log/dpkg/history.log
      (3) ps aux | grep lastore-
      (4) sudo journalctl -f /usr/libexec/lastore-daemon/lastore-daemon
+
+3. kwin 编译、安装、以及日志
+    (1) 编译：进入kwin目录，进入build目录， `cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=0`
+        然后 make -j16
+    (2) 安装： 在build目录下sudo make install
+    (3) 查看日志 journalctl _PID=`pgrep kwin_x11` -f
