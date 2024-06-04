@@ -22,3 +22,7 @@
 4. 调试dtkcore dtkwidget dtkgui 
     (1) 项目设置run 添加可执行文件
     (2) LD_LIBRARY_PATH 指向编出来的文件
+
+5. 监听相关
+    (1) 监听设备事件（鼠标、键盘）：sudo apt install libinput-tools;  sudo libinput debug-events
+    (2) 监听dbus信号：dbus-monitor --system sender="服务名" interface="接口名"
