@@ -28,5 +28,4 @@
     (2) 监听dbus信号：dbus-monitor --system sender="服务名" interface="接口名"
 
 6. 终端美化
-    (1) wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-    (2) sh install.sh
+    (1) sh -c "$(curl -fsSL https://install.ohmyz.sh/)"
