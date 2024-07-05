@@ -1,3 +1,270 @@
+### gerrit提交
+1. .user不需要提交，可以手动删除，或者在.gitignore文件中增加忽略文件的路径
+2. 显示当前分支，`git branch`；显示所有分支，`git branch -a`
+3. 切换分支，`git checkout 分支名`
+4. 提交常规步骤:
+	- `git status`
+	- `git checkout 文件名(develop/eagle)`，丢弃当前文件修改，要谨慎！！可以增加忽略文件路径代替
+	- `git status`
+	- `git add 文件名1 文件名2...`，将文件添加到暂存区
+	- `git commit`，编辑提交信息
+	- `git review 分支名(develop/eagle) -r origin -R`，推送到gerrit上
+5. 当commit完一个新提交记录，发现还需要修改，则使用`git commit --amend`修改上次的提交信息，修改完成后，再次推送
+6. 如果只是修改commit信息，可以直接在gerrit上点Edit按键提交
+7. 如果需要退回本地修改，可以使用git commit --amend修改上一次提交信息，修改完成后再次推送
+8. 修改默认编辑器 vim ~/.gitconfig，新增[core] editor=vim
+7. gerrit修改前几次代码，点击页面右上角多选按键，在菜单中选中Download pick，复制Cherry Pick命令，直接在当前路径下的终端中执行命令
+8. 退到指定的commit: git reset --hard commit_id
+9. 撤销git commit --amend: git reflog -> 找到(amend)的前一次HEAD -> git reset --soft HEAD@{1}
+10. 退到最新的commit：git reset --hard origin/develop/eagle 
+11. 设置默认编辑器：git config --global core.editor "vim"
+12. 撤销上一笔提交: git reset HEAD~
+13. 中止cherry-pick：git cherry-pick --abort 
+14. 同时有两笔commit，如果想修改上一笔：
+	- 在当前分支创建并切换到一个新的临时分支，如aaa，git checkout -b aaa
+	- 将最新的一笔cherry-pick到临时分支，
+	- 切回develop/eagle分支，然后drop最新的一笔
+	- 正常修改需要修改的commit
+	- 改完后，可以再从临时分支将暂存的commit摘回（cherry-pick）开发分支
+	- 全部处理完后，切到开发分支，然后删除刚才的临时分支，git branch -D aaa
+
+### 路径
+1. 控制中心插件动态库地址：`cd /usr/lib/dde-control-center/modules/`
+2. 自启动server地址：/usr/share/dbus-1/services
+3. 系统systemd授权地址：/usr/share/dbus-1/system.d
+4. systemd文件地址（开机自启）：/usr/lib/systemd/system
+5. GSetting配置文件存储路径：/usr/share/glib-2.0/schemas
+6. GSetting刷新指令: `glib-compile-schemas /usr/share/glib-2.0/schemas`
+7. DConfig配置文件存储路径：/usr/share/dsg/configs
+8. polkit授权文件地址: /usr/share/polkit-1/actions
+9. desktop文件地址：/usr/share/applications
+10. 图标路径: /usr/share/icons
+11. apt下载源文件路径：/etc/apt/sour...list，编辑完成后使用`sudo apt update`更新
+12. 登陆界面lightdm-deepin-greeter的log文件地址: sudo su -> less /var/log/lightdm/seat0-greeter.log
+13. 锁屏界面dde-lock的log文件地址: ~/.cache/deepin/org.deepin.dde.lock/org.deepin.dde.lock.log
+14. 常规dde项目的log地址: ~/.cache/deepin/
+15. dde-launcher相关文件路径：/home/cjq/.config/deepin/dde-launcher-app-used-sorted-list.conf
+16. 系统使用的icon路径：usr/share/icons/bloom/stauts/32
+17. fido证书路径：usr/share/deepin-passkey/cred/
+18. icon图标缓存地址：~/.cache/deepin/icons
+
+### 杂七杂八
+1. 命令行调试dbus：
+	- `dbus-send --print-reply --dest=com.deepin.dde.ControlCenter /com/deein/dde/Controlenter com.deepin.dde.ControlCenter.Show`
+	- dbus-send --session --print-reply --dest=com.deepin.Manual.Open /com/deepin/Manual/Open com.deepin.Manual.Open.OpenTitle string:"dde" string:"sound", 打开帮助手册，并定位声音设置页面
+	- dbus-send --session --print-reply --dest=com.deepin.SessionManager /com/deepin/SessionManager org.freedesktop.DBus.Properties.Get string:"com.deepin.SessionManager" string:"Locked"，获取属性
+	- dbus-send --session --print-reply --dest=com.deepin.dde.daemon.Dock /com/deepin/dde/daemon/Dock org.freedesktop.DBus.Properties.Set string:"com.deepin.dde.daemon.Dock" string:"DisplayMode" variant:int32:0，设置属性
+2. 查看运行程序的信息：`journalctl -f /usr/lib/dde-api-proxy/dbus-proxy/dde-api-dbus-prox-session-v1`
+3. 远程登录指令：`ssh uos@10.20.31.98` uos为用户名，@后为ip地址；远程登陆后，即可通过命令行进行操作，exit命令即可退出
+4. 远程复制文件：`scp cjq@10.20.43.187:/地址 ./地址`
+5. 查询包安装状态：`apt policy 包名称`
+6. 卸载软件(保留配置信息)：`apt remove 软件名`
+7. 显示软件包关联的文件路径：`dpkg -L 软件名`
+8. deb包构建：`dpkg-buildpackage -us -uc -nc`、`debuild -us -uc -nc`
+9. 关闭软件：`killall 软件名`
+10. 查看软件运行状态：`ps aux | grep 软件名`
+11. gerrit推送指令：`git review develop/eagle -r origin -R`
+12. gerrit重定向，使用push直接推：`git config remote.origin.push refs/heads/*:refs/for/*`
+13. 安装对应项目的项目依赖库: `sudo apt build-dep dde-launcher`
+14. 查看dbus信息: sudo dbus-monitor --system interface=org.freedesktop.login1.Session
+15. 查看log信息: less ~/.cache/deepin/dde-launcher/dde-launcher.log
+16. 卡死时查看核心转存文件: coredumpctl debug -> bt(gdb中)
+17. 替换安装: sudo apt reinstall dde-launcher
+18. 降包的版本：sudo apt install libxxx=5.3.2.1
+19. 列出所有可更新软件列表: apt list --upgradable
+20. gerrit查看自己的提交，搜索框输入owner:chujiaqi@uniontech.com
+21. 默认开启ssh：sudo systemctl enable ssh
+22. 显示环境变量：export
+23. 查看当前图形环境：echo查看XDG_SESSION_TYPE
+24. 无线网显示已连接但无法访问互联网：浏览器1.1.1.3输入ut账号
+25. 查看dconfig信息：dde-dconfig-editor
+26. 关闭任务栏看门狗，调试自启动程序，如dde-dock：gsettings set com.deepin.dde.watchdog dde-dock false
+27. 查看dde-session-daemon打印信息方法：killall dde-session-daemon; /usr/lib/deepin-daemon/dde-session-daemon
+28. 切换shell：chsh -s /bin/zsh
+29. 查看当前重启之后的信息-dde-session-daemon: journalctl -b /usr/lib/deepin-daemon/dde-session-daemon 
+30. 更换dde-session-daemon：killall dde-session-daemon;  sudo cp /home/cjq/work/dde-go/dde-daemon/out/bin/dde-session-daemon /usr/lib/deepin-daemon/
+31. ssh报错解决： WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!  -> ssh-keygen -R 对方ip
+32. 开启debug打印信息：sudo vim /etc/X11/Xsession.d/00deepin-dde-env -> QT_LOGGING_RULES
+33. 查看一个文件属于哪个包：dpkg -S 插件名称  -> 找到对应包  -> apt show 包名  -> 对应项目
+34. SW机型关闭外部应用权限管控：dbus-send --print-reply --type=method_call --system --dest=com.deepin.daemon.ACL /org/deepin/security/hierarchical/Control org.deepin.security.hierarchical.Control.SetMode boolean:false
+35. 查看某个项目依赖的包：cat 项目路径/debian/control
+36. 提示keyring密码弹窗：删除.local/share/deepin-keyrings-wb/login.keyring文件
+37. 控制中心隐私安全模块显示：sudo apt install filearmor
+38. 藏语和维语翻译文件后缀: bo ug
+39. 查看startdde/或其他二进制打印信息: ps aux startdde -> sudo journalctl _PID＝1111
+40. cmake编译某一模块指令：cmake --build build --target dde-control-center -- -j15
+41. 安装5.10内核：sudo apt install linux-image-5.10.0-amd64-desktop linux-headers-5.10.0-amd64-desktop
+42. qdbusxml2cpp生成服务端使用的dbus的adptor对象文件：
+	- qdbusxml2cpp -i <服务类头文件> -c <要生成的Adaptor类名称> -l <服务类头文件中的类名> -a <要生成的adaptor文件名(不用写扩展名)> <使用的xml文件>
+	- qdbusxml2cpp -i dbustest.h -c DbusTestAdaptor -l DbusTest -a dbustestadaptor com.uniontech.dbustest.xml
+43. qdbusxml2cpp生成客户端使用的dbus的interface对象文件：
+	- qdbusxml2cpp -c <要生成的interface类名> -p <要生成的interface文件名(不用写扩展名)> <使用的xml文件>
+	- qdbusxml2cpp -c DbusTestInterface -p dbustestinterface com.uniontech.dbustest.xml
+44. 安装器修改分辨率: 
+	- 切换到root，sudo -s
+	- sudo vi /usr/share/deepin-installer/tools/functions/xrandr.sh
+	- 找到脚本中设置主屏分辨率的地方，将if[]中的内容改为1，保存退出
+	- 重启lightdm，systemctl restart lightdm
+45. 系统安全取消应用权限管控的命令:
+	- dbus-send --print-reply --type=method_call --system --dest=com.deepin.daemon.ACL /org/deepin/security/hierarchical/Control org.deepin.security.hierarchical.Control.SetMode boolean:false
+46. qtcreator调试qt5platform-plugins，项目（左边导航栏）-Run设置里:
+	- Executable: /home/uos/code/build-dtkwidget-unknown-Default/examples/collections/collections，需要调用的项目库二进制路径，此处是dtkwidget中的示例程序；
+	- Command line arguments: -platformpluginpath /home/uos/code/qt5platform-plugins/qt5platform-plugins/bin/plugins，项目库的路径
+47. 切换wayland和x11:
+	- dconfig，org.deepin.dde.lightdm-deepin-greeter -> AllowSwitchingToWayland
+48. 重启kwin: kwin_no_scale --replace
+49. 清空coredumpctl list：
+	- 清空coredum调试文件，sudo rm /var/lib/systemd/coredump/*
+	- 清空systemd-journal打印记录，cd /var/log/journal，进入里面的文件夹，清空文件夹内的信息;
+	- 重新开启coredump，ulimit -c unlimited
+50. 查看文件夹大小：du -sh
+51. 修改打印信息级别：
+	- cd /usr/share/deepin-debug-config/shell
+	- bash org.deepin.dde.dock.sh debug=debug
+52. 调试qt5platform-plugins（xcb库）：
+	- 备份一下，sudo cp /usr/lib/x86_64-linux-gnu/qt5/plugins/platforms/libdxcb.so ~/Desktop/
+	- sudo cp libdxcb.so /usr/lib/x86_64-linux-gnu/qt5/plugins/platforms
+	- wayland库路径，/usr/lib/aarch64-linux-gnu/qt5/plugins/platforms/libdwayland.so
+53. 调试dtk库：
+	- 备份并查看版本号，/usr/lib/x86_64-linux-gnu/libdtkgui.so.5.6.9.3
+	- 将生成的libdtkgui.so.5.6.8替换并改名为libdtkgui.so.5.6.9.3（与系统当前的版本一致）
+54. 改打印信息等级：
+	- 开启全部，直接在控制中心开启
+	- 开启某个，cd /usr/share/deepin-debug-config/shell，然后运行对应sh脚本，如./org.deepin.dde.control-center.sh debug=info，等级有info/debug/warning
+55. ssh远程打开应用窗口: export DISPLAY=:0；0为x11，1为wayland
+56. 事例，控制中心无法加载网络库，报undefined symbol错误，原因是开发机器手动make install过控制中心，导致控制中心加载的libdccwidget.so是/usr/local/路径下的，导致该问题出现。正常的应该是加载/usr/lib/下的。
+	- 列出系统中当前已加载的所有动态链接库及其路径：ldconfig -p | grep 查询的库
+	- 列出二进制文件加载的动态链接库，并显示它们的路径：ldd /usr/bin/dde-dock
+57. xprop命令可以查看x窗口的属性：
+	- 终端输入xprop后，点击打开的窗口（只有x窗口可以点击，wayland的不可以），终端会显示该窗口的各种属性；
+58. 安装编译依赖的包：
+	- sudo apt build-dep dde-dock
+	- 在项目文件夹根目录下打开终端，sudo apt build-deb .
+59. dconfig终端命令:
+	- 获取值，dde-dconfig --get -a org.deepin.dde.keyring -r org.deepin.dde.keyring.whitebox -k autoOpenWhitebox
+	- 设置值（readonly不可设置），dde-dconfig --set -a org.deepin.dde.keyring -r org.deepin.dde.keyring.whitebox -k autoOpenWhitebox -v true
+60. 查看任务栏插件信息：
+	- qdbus com.deepin.dde.Dock /com/deepin/dde/Dock com.deepin.dde.Dock.pluginsInfo | jq
+61. 控制中心个性化不显示任务栏插件选项：
+	- 查看/usr/share/dde-dock/icons/dcc-setting路径下是否有该插件的图标，名称也要正确（插件名称.svg）；
+	- 控制中心任务栏插件会通过该路径下的图片，加载对应插件的选项；
+62. 查看某一进程的环境变量：cat /proc/该进程的pid/environ | tr '\0' '\n'
+
+
+### 系统升级
+1. 更新仓库地址，将原仓库地址注释，复制新仓库地址，`sudo vi /etc/apt/sour.....list`
+2. 更新apt源，`sudo apt update`
+3. apt升级，`sudo apt upgrade`
+4. 升级过程中直接全部默认选择，enter
+5. 等待升级完成
+6. 重启
+7. 用`apt policy dde-相关项目`验证一下
+
+### 翻译相关步骤
+1. 替换最新的tx二进制，/usr/bin/tx
+2. 运行translate_generation.sh脚本，将内容更新到项目的ts文件中，（ lrealease ）
+3. vs检查相关翻译内容是否更新到ts文件中
+4. 将.transifexrc文件放入项目内（如果项目中有就不需要），也可以放到用户根目录下（cat ~/.transifexrc查看）；
+5. sudo apt install transifex-client，安装翻译工具
+6. 运行lupdate.sh脚本，将翻译内容推送到服务器中，（tx push -s -f --branch m20，其中m20为master分支）
+7. 联系朱秀娟同事，帮忙在服务器完成翻译
+8. 服务器完成翻译后，拉取到本地（tx pull -a -f --branch m20）
+9. 本地验证翻译是否生效: 
+	- 打开项目代码的translations文件夹
+	- 在文件夹内打开终端，运行lrelease [项目名称]_zh_CN.ts -qm [项目名称]_zh_CN.qm
+	- 备份系统的翻译文件sudo cp /usr/share/[项目名称]/translations [指定路径] -r
+	- 将新发布的翻译拷贝到系统翻译路径下sudo cp ./[项目名称]_zh_CN.qm /usr/share/[项目名称]/translations
+	- 运行新编译的程序，检查需要翻译的内容是否被翻译
+9. ***如果translate_generation.sh脚本中lrealease命令不生效，可以先使用 lupdate ./ -ts translations/*.ts ，再运行脚本
+10. 如果控制中心脚本翻译不生效，可以先执行lupdate ./ -ts -no-obsolete translations/dde-control-center_en.ts 
+
+101. lupdate是Qt Linguist工具链的一部分。它从Qt UI文件、C++、Java和JavaScript/QtScript源代码中提取可翻译的消息。提取的消息存储在文本翻译源文件（通常是Qt TS XML）中。新的和修改的消息可以合并到现有的TS文件中。
+102. lrelease是Qt Linguist工具链的一部分。它可以作为一个独立的工具，将TS格式的基于XML的翻译文件转换为QTranslator对象使用的“编译”QM格式。
+
+
+### 后端编译环境搭建
+1. sudo apt update
+2. sudo apt install golang devscripts
+3. go env -w GOPATH="$HOME/go:$HOME/dde-go:/usr/share/gocode"
+
+    ~/go：用来安装第三方包，以及后续 VSCode 会使用到的工具
+    ~/dde-go：用来放项目，比如 dde-daemon 放在 ~/dde-go/src/pkg.deepin.io/dde/daemon
+    /usr/share/gocode：开发依赖的包的存放路径
+
+4. 可以使用go env GOPATH查看是否设置成功；
+5. 在dde-daemon  startdde根目录执行sudo mk-build-deps --install
+6. /usr/share/gocode下编译依赖版本低的话,就git clone对应的依赖代码放到~/dde-go的对应路径下
+
+补充1. ~/dde-go：用来放项目，比如 dde-daemon 放在 ~/dde-go/src/pkg.deepin.io/dde/daemon
+补充2. 这个是老版本dde-daemon,新版本放到新的对应位置~/dde-go/src/github.com/linuxdeepin/dde-daemon
+
+### 后端dde-daemon开发调试
+1. 项目目录下有Makefile，改完代码直接make，在out/bin/下会生成二进制；
+2. dde-session-daemon调试：
+	- 将新生成的二进制替换到对应路径下，killall dde-session-daemon;sudo cp dde-session-daemon /usr/lib/deepin-daemon
+	- 终端运行新替换的二进制，查看打印信息，killall dde-session-daemon;/usr/lib/deepin-daemon/dde-session-daemon
+3. dde-system-daemon调试：
+	- 终端切到root用户，sudo su
+	- 替换二进制到对应路径，root终端运行二进制，查看打印信息；
+4. 也可以out/bin/下直接跑二进制；
+
+### 虚拟机vbox
+1. 安装镜像时分盘，分3个盘，具体可以参考uca教程
+2. 开启拖放和共享剪切板
+	- 右上角菜单栏中，点击设备，在拖放和共享剪切板中选择双向
+	- 选择完成后，点击安装增强功能
+	- 打开计算机，点击打开驱动器VBox_GAs_7.0.2
+	- 终端执行 `sudo ./VBoxLinuxAdditions.run`
+	- 执行完成后，重启
+
+
+### 压缩与解压
+1. 压缩，7z a folder.7z /path/to/folder
+2. 解压文件到当前目录: 7z x folder.7z
+3. 解压文件到/home/cjq/Desktop目录下: 7z x archive.7z -o/home/cjq/Desktop
+
+### 更新changelog方法：
+1. 安装软件：
+apt install deepin-git-dch-plugins
+
+仓库地址：deb [trusted=yes] https://ci.uniontech.com/sniperepo/snipe/snipe-topics/snipe/deepin-dch unstable main
+
+安装会有弹框界面，后一个输入一个地址，按上面提示输入debian的地址即可。
+
+2. 本地仓库路径下执行：
+gbp deepin-changelog -N 5.5.11 -s 5.5.10 --git-author --ignore-branch
+
+-N为新版本号，-s后面为旧版本。
+
+如果出错，则为-s后面的版本找不到对应的提交comit。可cd debian; git blame changelog,查看第一行对应的短commit id 将-s后面的旧版本号替换。
+
+如：gbp deepin-changelog -N 0.0.2 -s 37adf31d --git-author
+
+3. 参看链接：
+https://gerrit.uniontech.com/plugins/gitiles/deepin-autotools/deepin-git-dch-plugins/+/refs/heads/develop/snipe/README.md
+
+4. 简单方法：dch -D unstable -bv "1.0.1" 内容
+
+### keyring启用白盒间接测试：
+1. 查看日志sudo less /var/log/syslog | grep deepin-keyring-white
+2. 将~/.local/share/deepin-keyrings-wb备份
+3. sudo rm ~/.local/share/deepin-keyrings-wb -r
+4. 注销后登录
+5. 查看新生成的~/.local/share/deepin-keyrings-wb/下有没有status，如果当前有启用白盒的场景，会自动将status生成；如果没有，则不生成status
+
+### 查看对应包是否带上了某笔提交
+1. shuttle查找对应包名，然后进入对应架构详情页面，找到Hashsum值，复制其中前4位；
+2. 打开gerrit，进入对应项目的分支页面，例如dde-session-ui，通过Branches进入develop/eagle分支页面；
+3. ctrl+f打开浏览器搜索框，搜索前4位的Hash值；
+4. 搜到的提交即是包里带的最新提交，查看是否包括自己的提交；
+
+### uos新适配查看日志方法
+1. 直接使用日志收集工具看；
+2. 使用journalctl命令指定查看，例如查看dock的垃圾箱插件日志；
+	- journalctl /usr/bin/dde-dock CODE_CATEGORY="org.deepin.dde.dock.trash"
+3. 存放日志配置信息的文件地址，cat /usr/share/deepin-log-viewer/deepin-log.conf.d/org.deepin.dde.dock.json；
+
+### BY QBX
 1. 日志级别更改
     x11:
     sudo vim /etc/X11/Xsession.d/00deepin-dde-env
