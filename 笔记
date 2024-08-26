@@ -301,3 +301,5 @@ https://gerrit.uniontech.com/plugins/gitiles/deepin-autotools/deepin-git-dch-plu
     (1) 更新提示窗口只在更新后出现一次，是通过读取 /tmp/deepin_update_option.json文件，存在该文件才会调起该窗口，研发可在重装系统并更新后将该文件拷贝出来，想要调起该窗口时将该文件再放到 /tmp/下，或者手动新建该文件，内容为：
     {"DoUpgrade":false,"DoUpgradeMode":1,"IsPowerOff":false,"PreGreeterCheck":false,"AfterGreeterCheck":true}
     (2) 重启lightdm 即可
+
+8. 多屏配置：startdde   目录 /var/lib/dde-daemon/display/config.json
