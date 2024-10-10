@@ -1,3 +1,47 @@
+### BY QBX
+1. 日志级别更改
+    x11:
+    sudo vim /etc/X11/Xsession.d/00deepin-dde-env
+    export QT_LOGGING_RULES="*.debug=false"
+
+    wayland: 
+    sudo vim /usr/bin/kwin_wayland_helper
+    向 export QT_LOGGING_RULES="kwin*=true; kwin_libinput=false;" 追加 *.debug=false;
+
+2. 更新问题
+     (1) sudo tail -f /var/log/apt/history.log
+     (2) sudo tail -f /var/log/dpkg/history.log
+     (3) ps aux | grep lastore-
+     (4) sudo journalctl -f /usr/libexec/lastore-daemon/lastore-daemon
+
+3. kwin 编译、安装、以及日志
+    (1) 编译：进入kwin目录，进入build目录， `cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=0`
+        然后 make -j16
+    (2) 安装： 在build目录下sudo make install
+    (3) 查看日志 journalctl _PID=`pgrep kwin_x11` -f
+
+4. 调试dtkcore dtkwidget dtkgui 
+    (1) 项目设置run 添加可执行文件
+    (2) LD_LIBRARY_PATH 指向编出来的文件
+
+5. 监听相关
+    (1) 监听设备事件（鼠标、键盘）：sudo apt install libinput-tools;  sudo libinput debug-events
+    (2) 监听dbus信号：dbus-monitor --system sender="服务名" interface="接口名"
+
+6. 终端美化
+    (1) sh -c "$(curl -fsSL https://install.ohmyz.sh/)"
+
+7. 调出更新提示窗口
+    (1) 更新提示窗口只在更新后出现一次，是通过读取 /tmp/deepin_update_option.json文件，存在该文件才会调起该窗口，研发可在重装系统并更新后将该文件拷贝出来，想要调起该窗口时将该文件再放到 /tmp/下，或者手动新建该文件，内容为：
+    {"DoUpgrade":false,"DoUpgradeMode":1,"IsPowerOff":false,"PreGreeterCheck":false,"AfterGreeterCheck":true}
+    (2) 重启lightdm 即可
+
+8. 多屏配置：startdde   目录 /var/lib/dde-daemon/display/config.json
+
+
+===============================================================================================================================================================================================================================
+
+
 ### gerrit提交
 1. .user不需要提交，可以手动删除，或者在.gitignore文件中增加忽略文件的路径
 2. 显示当前分支，`git branch`；显示所有分支，`git branch -a`
@@ -263,43 +307,3 @@ https://gerrit.uniontech.com/plugins/gitiles/deepin-autotools/deepin-git-dch-plu
 2. 使用journalctl命令指定查看，例如查看dock的垃圾箱插件日志；
 	- journalctl /usr/bin/dde-dock CODE_CATEGORY="org.deepin.dde.dock.trash"
 3. 存放日志配置信息的文件地址，cat /usr/share/deepin-log-viewer/deepin-log.conf.d/org.deepin.dde.dock.json；
-
-### BY QBX
-1. 日志级别更改
-    x11:
-    sudo vim /etc/X11/Xsession.d/00deepin-dde-env
-    export QT_LOGGING_RULES="*.debug=false"
-
-    wayland: 
-    sudo vim /usr/bin/kwin_wayland_helper
-    向 export QT_LOGGING_RULES="kwin*=true; kwin_libinput=false;" 追加 *.debug=false;
-
-2. 更新问题
-     (1) sudo tail -f /var/log/apt/history.log
-     (2) sudo tail -f /var/log/dpkg/history.log
-     (3) ps aux | grep lastore-
-     (4) sudo journalctl -f /usr/libexec/lastore-daemon/lastore-daemon
-
-3. kwin 编译、安装、以及日志
-    (1) 编译：进入kwin目录，进入build目录， `cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=0`
-        然后 make -j16
-    (2) 安装： 在build目录下sudo make install
-    (3) 查看日志 journalctl _PID=`pgrep kwin_x11` -f
-
-4. 调试dtkcore dtkwidget dtkgui 
-    (1) 项目设置run 添加可执行文件
-    (2) LD_LIBRARY_PATH 指向编出来的文件
-
-5. 监听相关
-    (1) 监听设备事件（鼠标、键盘）：sudo apt install libinput-tools;  sudo libinput debug-events
-    (2) 监听dbus信号：dbus-monitor --system sender="服务名" interface="接口名"
-
-6. 终端美化
-    (1) sh -c "$(curl -fsSL https://install.ohmyz.sh/)"
-
-7. 调出更新提示窗口
-    (1) 更新提示窗口只在更新后出现一次，是通过读取 /tmp/deepin_update_option.json文件，存在该文件才会调起该窗口，研发可在重装系统并更新后将该文件拷贝出来，想要调起该窗口时将该文件再放到 /tmp/下，或者手动新建该文件，内容为：
-    {"DoUpgrade":false,"DoUpgradeMode":1,"IsPowerOff":false,"PreGreeterCheck":false,"AfterGreeterCheck":true}
-    (2) 重启lightdm 即可
-
-8. 多屏配置：startdde   目录 /var/lib/dde-daemon/display/config.json
