@@ -43,6 +43,10 @@
     sudo libinput debug-events
 
 10. gesttings 文件替换后需要sudo glib-compile-schemas /usr/share/glib-2.0/schemas编一下
+
+11. gdbus调用方法
+    gdbus call --system --dest com.deepin.daemon.Accounts --object-path /com/deepin/daemon/Accounts --method org.freedesktop.DBus.Properties.Get "com.deepin.daemon.Accounts" "UserList"
+
 ===============================================================================================================================================================================================================================
 
 
