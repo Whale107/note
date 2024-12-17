@@ -79,6 +79,7 @@
 	- 正常修改需要修改的commit
 	- 改完后，可以再从临时分支将暂存的commit摘回（cherry-pick）开发分支
 	- 全部处理完后，切到开发分支，然后删除刚才的临时分支，git branch -D aaa
+15. 如果一笔提交从A分支git review到B分支，gerrit会带Topic，无法打包，此时git commit --amend，用另外方法git push origin HEAD:refs/for/develop/eagle，重新push即可
 
 ### 路径
 1. 控制中心插件动态库地址：`cd /usr/lib/dde-control-center/modules/`
@@ -99,6 +100,13 @@
 16. 系统使用的icon路径：usr/share/icons/bloom/stauts/32
 17. fido证书路径：usr/share/deepin-passkey/cred/
 18. icon图标缓存地址：~/.cache/deepin/icons
+19. libdwayland.so路径：sudo mv libdwayland.so /usr/lib/aarch64-linux-gnu/qt5/plugins/platforms/
+20. 仓库源工具deepin-repo-config-tool的oem文件地址: /etc/deepin/lastore-daemon/oem-repo.conf.d
+21. dde-lockservice日志: sudo /var/log/daemon.log | grep dde-lockservice
+22. startdde记录双屏分辨率数据配置文件地址：/var/lib/dde-daemon/display/config.json
+23. dde-daemon的Accouts/UserX服务在处理壁纸，记录的文件地址是：/var/lib/AccoutsService/deepin/user/
+24. startdde记录缩放和Qt相关环境变量文件qt-theme.ini和xsettingsd.conf地址：/etc/lightdm/deepin
+
 
 ### 杂七杂八
 1. 命令行调试dbus：
@@ -120,7 +128,7 @@
 13. 安装对应项目的项目依赖库: `sudo apt build-dep dde-launcher`
 14. 查看dbus信息: sudo dbus-monitor --system interface=org.freedesktop.login1.Session
 15. 查看log信息: less ~/.cache/deepin/dde-launcher/dde-launcher.log
-16. 卡死时查看核心转存文件: coredumpctl debug -> bt(gdb中)
+16. 卡死时查看核心转存文件: coredumpctl debug -> bt(gdb中)，coredumpctl debug 7297（对应PID）
 17. 替换安装: sudo apt reinstall dde-launcher
 18. 降包的版本：sudo apt install libxxx=5.3.2.1
 19. 列出所有可更新软件列表: apt list --upgradable
@@ -201,6 +209,18 @@
 	- 查看/usr/share/dde-dock/icons/dcc-setting路径下是否有该插件的图标，名称也要正确（插件名称.svg）；
 	- 控制中心任务栏插件会通过该路径下的图片，加载对应插件的选项；
 62. 查看某一进程的环境变量：cat /proc/该进程的pid/environ | tr '\0' '\n'
+63. 公司系统代理地址：https://it.uniontech.com/proxy/proxy.pac
+64. 清除系统代理配：gsettings reset-recursively org.gnome.system.proxy
+65. 统计代码行数:
+	- sudo apt install cloc
+	- 排除文件，excludeExt="png,gpg,svg,ts,po,doc,jpg,md"
+	- 项目根目录下，切到对应git分支，cloc . --quiet --exclude-ext=${excludeExt}，统计排除文件后的代码行数
+	- --quiet 选项用于禁止 cloc 输出详细的文件计数信息，只显示总体统计
+66. 查看lastore-daemon日志: sudo journalctl -f -u lastore-daemon 
+67. 查看由system的service拉起二进制的日志，如dde-lockservice: sudo journalctl -b -u deepin-user-lock.service
+68. qdbus使用：qbus --system org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager.CanReboot
+69. 装高版本Golang，debian仓库地址: deb http://ftp.cn.debian.org/debian sid main
+70. 筛选查看日志：journalctl -D d1481e414d5443bf8ed3aa1cca3cb05d --since "2024-11-15 15:23:50"
 
 
 ### 系统升级
@@ -246,11 +266,25 @@
 4. 可以使用go env GOPATH查看是否设置成功；
 5. 在dde-daemon  startdde根目录执行sudo mk-build-deps --install
 6. /usr/share/gocode下编译依赖版本低的话,就git clone对应的依赖代码放到~/dde-go的对应路径下
+7. 临时导入GOPATH，export GOPATH=/usr/share/gocode/
 
 补充1. ~/dde-go：用来放项目，比如 dde-daemon 放在 ~/dde-go/src/pkg.deepin.io/dde/daemon
 补充2. 这个是老版本dde-daemon,新版本放到新的对应位置~/dde-go/src/github.com/linuxdeepin/dde-daemon
 
-### 后端dde-daemon开发调试
+
+### VSCode安装Go环境
+1. sudo apt install golang devscripts；
+2. go env -w GO111MODULE=on，强制启用 Go 模块支持。这对于确保 Go 工具使用模块化的方式来处理依赖关系非常重要。
+3. go env -w GOPROXY=https://goproxy.io,direct，设置代理，下载Go工具需要；
+4. VSCode设置中设置Gopath和Goroot，可以用go env查看，然后复制粘贴；
+5. VSCode命令行搜索 ">Go:Install/Update Tools"，选中后会出现下来框，下拉框内的工具全选下载，如果安装不成功，你可能需要梯子；
+6. 如果提示Go版本太低，装高版本golang，deepin仓库地址（切记只装golang，装完记得屏蔽仓库，然后update！！！）: deb https://community-packages.deepin.com/beige/ beige main commercial community
+7. 重启设备；
+8. 打开go项目(如dda-daemon)，根目录下go mod init dde-daemon，会生成go.mod文件；
+9. 重新编译，就可以跳转、自动补全等；
+
+
+### 后端开发调试dde-daemon和startdde
 1. 项目目录下有Makefile，改完代码直接make，在out/bin/下会生成二进制；
 2. dde-session-daemon调试：
 	- 将新生成的二进制替换到对应路径下，killall dde-session-daemon;sudo cp dde-session-daemon /usr/lib/deepin-daemon
@@ -259,6 +293,11 @@
 	- 终端切到root用户，sudo su
 	- 替换二进制到对应路径，root终端运行二进制，查看打印信息；
 4. 也可以out/bin/下直接跑二进制；
+5. startdde二进制在项目根目录下生成；
+6. sudo cp startdde /usr/bin/ -f，-f可以强制替换；
+7. 开启后端debug日志，export DDE_DEBUG_LEVEL=debug；
+8. 开启固定模块日志，export DDE_DEBUG_MATCH=keybinding；
+10. startdde开启debug，首先export DDE_DEBUG_LEVEL=debug，其次d-feet打开SessionBus中的SessionManager，运行ToggleDebug()接口，最后journalctl -f /usr/bin/startdde;
 
 ### 虚拟机vbox
 1. 安装镜像时分盘，分3个盘，具体可以参考uca教程
