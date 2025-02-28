@@ -44,9 +44,14 @@
 
 10. gesttings 文件替换后需要sudo glib-compile-schemas /usr/share/glib-2.0/schemas编一下
 
-11. gdbus调用方法
+11. dbus调用方法
     gdbus call --system --dest com.deepin.daemon.Accounts --object-path /com/deepin/daemon/Accounts --method org.freedesktop.DBus.Properties.Get "com.deepin.daemon.Accounts" "UserList"
+    
+    终端调用如何传参？下面以开关窗口特效属性为例：
+    终端：dbus-send --session --print-reply --dest=com.deepin.wm /com/deepin/wm org.freedesktop.DBus.Properties.Set string:com.deepin.wm string:compositingEnabled variant:boolean:true
 
+    d-feet中参数如何转换？
+    GLib.Variant("i", 3)
 ===============================================================================================================================================================================================================================
 
 
